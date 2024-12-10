@@ -259,6 +259,11 @@ document.addEventListener("DOMContentLoaded", () => {
             updateOrderDisplay();
             updatePreparationArea();
 
+            // If game was still running when saved, restart the timer
+            if (!gameOver) {
+                startTimer();
+            }
+
             alert("Game Loaded!");
         } catch (e) {
             console.error("Error loading from localStorage:", e);
@@ -285,10 +290,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Save and Load buttons initialized.");
 });
 
-
 startGame();
 
 if (preparationArea) {
     preparationArea.addEventListener("dblclick", validateOrder);
 }
+
 
