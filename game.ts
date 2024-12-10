@@ -214,6 +214,11 @@ function startTimer(): void {
 
 document.addEventListener("DOMContentLoaded", () => {
     function saveGame() {
+        if (gameOver) {
+            alert("Game over! Cannot save the game.");
+            return;
+        }
+
         const gameState = {
             score,
             timeLeft,
@@ -222,40 +227,55 @@ document.addEventListener("DOMContentLoaded", () => {
             selectedIngredients,
             gameOver
         };
-        localStorage.setItem("gameState", JSON.stringify(gameState));
-        alert("Game Saved!");
+
+        try {
+            localStorage.setItem("gameState", JSON.stringify(gameState));
+            alert("Game Saved!");
+        } catch (e) {
+            console.error("Error saving to localStorage:", e);
+            alert("Failed to save game. Please try again.");
+        }
     }
 
     function loadGame() {
         const savedGame = localStorage.getItem("gameState");
-        if (savedGame) {
+
+        if (!savedGame) {
+            alert("No saved game found.");
+            return;
+        }
+
+        try {
             const gameState = JSON.parse(savedGame);
-            score = gameState.score;
-            timeLeft = gameState.timeLeft;
-            currentDish = gameState.currentDish;
-            requiredIngredients = gameState.requiredIngredients;
-            selectedIngredients = gameState.selectedIngredients;
-            gameOver = gameState.gameOver;
+
+            score = gameState.score || 0;
+            timeLeft = gameState.timeLeft || 60;
+            currentDish = gameState.currentDish || null;
+            requiredIngredients = gameState.requiredIngredients || [];
+            selectedIngredients = gameState.selectedIngredients || [];
+            gameOver = gameState.gameOver || false;
 
             updateScore();
             updateOrderDisplay();
             updatePreparationArea();
+
             alert("Game Loaded!");
-        } else {
-            alert("No saved game found.");
+        } catch (e) {
+            console.error("Error loading from localStorage:", e);
+            alert("Failed to load game. Save file might be corrupted.");
         }
     }
 
-    const saveButton = document.createElement("button");
-    saveButton.innerText = "Save Game";
-    saveButton.onclick = saveGame;
-
-    const loadButton = document.createElement("button");
-    loadButton.innerText = "Load Game";
-    loadButton.onclick = loadGame;
-
     const controlsDiv = document.querySelector(".controls");
     if (controlsDiv) {
+        const saveButton = document.createElement("button");
+        saveButton.innerText = "Save Game";
+        saveButton.onclick = saveGame;
+
+        const loadButton = document.createElement("button");
+        loadButton.innerText = "Load Game";
+        loadButton.onclick = loadGame;
+
         controlsDiv.appendChild(saveButton);
         controlsDiv.appendChild(loadButton);
     } else {
@@ -264,6 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("Save and Load buttons initialized.");
 });
+
 
 startGame();
 
