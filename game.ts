@@ -22,16 +22,14 @@ let timeLeft = 60;
 let currentDish: Dish | null = null;
 let requiredIngredients: string[] = [];
 let selectedIngredients: string[] = [];
-let gameOver = false; // Add a game over flag
+let gameOver = false;
+
 const orderDisplay = document.getElementById("order-display");
 const ingredientTray = document.getElementById("ingredient-tray");
 const preparationArea = document.getElementById("preparation-area");
 const scoreDisplay = document.getElementById("score");
 const timerDisplay = document.getElementById("timer");
 
-/**
- * Starts the game by generating the first order and initializing the timer.
- */
 function startGame(): void {
     generateOrder();
     updateScore();
@@ -214,7 +212,62 @@ function startTimer(): void {
     }, 1000);
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    function saveGame() {
+        const gameState = {
+            score,
+            timeLeft,
+            currentDish,
+            requiredIngredients,
+            selectedIngredients,
+            gameOver
+        };
+        localStorage.setItem("gameState", JSON.stringify(gameState));
+        alert("Game Saved!");
+    }
+
+    function loadGame() {
+        const savedGame = localStorage.getItem("gameState");
+        if (savedGame) {
+            const gameState = JSON.parse(savedGame);
+            score = gameState.score;
+            timeLeft = gameState.timeLeft;
+            currentDish = gameState.currentDish;
+            requiredIngredients = gameState.requiredIngredients;
+            selectedIngredients = gameState.selectedIngredients;
+            gameOver = gameState.gameOver;
+
+            updateScore();
+            updateOrderDisplay();
+            updatePreparationArea();
+            alert("Game Loaded!");
+        } else {
+            alert("No saved game found.");
+        }
+    }
+
+    const saveButton = document.createElement("button");
+    saveButton.innerText = "Save Game";
+    saveButton.onclick = saveGame;
+
+    const loadButton = document.createElement("button");
+    loadButton.innerText = "Load Game";
+    loadButton.onclick = loadGame;
+
+    const controlsDiv = document.querySelector(".controls");
+    if (controlsDiv) {
+        controlsDiv.appendChild(saveButton);
+        controlsDiv.appendChild(loadButton);
+    } else {
+        console.error("Controls div not found!");
+    }
+
+    console.log("Save and Load buttons initialized.");
+});
+
 startGame();
+
 if (preparationArea) {
     preparationArea.addEventListener("dblclick", validateOrder);
 }
+
